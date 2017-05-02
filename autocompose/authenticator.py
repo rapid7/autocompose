@@ -50,6 +50,9 @@ def login_to_ecs(aws_session, docker_client, **kwargs):
     print('Saving Docker login to "' + __docker_config_file + '"...')
     __save_docker_login(registry, authorization_token)
 
+    if registry.startswith("https://"):
+        __save_docker_login(registry[len("https://"):], authorization_token)
+
     print('Login Succeeded. You can can push to and pull from "' + registry + '".')
 
 

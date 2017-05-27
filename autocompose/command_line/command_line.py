@@ -16,6 +16,7 @@ from .command.login import login_command
 from .command.path import path_command
 from .command.push import push_command
 from .command.up import up_command
+from .command.update_images import update_images_command
 from ..util import set_service_name
 
 commands = {
@@ -27,7 +28,8 @@ commands = {
     'login': login_command,
     'path': path_command,
     'push': push_command,
-    'up': up_command
+    'up': up_command,
+    'update-images': update_images_command
 }
 
 parser = argparse.ArgumentParser(description='Dynamically create docker-compose files.')

@@ -45,7 +45,7 @@ def build_compose_file(aws_session, scenarios):
     __apply_template_variables(docker_compose_config, template_variables)
 
     # Default version to 3
-    if docker_compose_config['version'] is None:
+    if 'version' not in docker_compose_config:
         docker_compose_config['version'] = '3'
 
     return docker_compose_config

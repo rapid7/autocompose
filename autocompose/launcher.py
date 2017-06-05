@@ -1,4 +1,3 @@
-import subprocess
 import tempfile
 
 import compose.cli.main as compose_main
@@ -44,96 +43,8 @@ def up(aws_session, arguments, **kwargs):
     yaml.dump(compose_dictionary, stream=file_stream, default_flow_style=False, Dumper=ExplicitYamlDumper)
     file_stream.close()
 
-    __run_before_scripts(scenarios)
-
     # Readjust argv and call docker compose up
     sys.argv = [sys.argv[0], '-f', temp_file_name, 'up']
     sys.argv.extend(docker_compose_args)
 
-    pid = os.fork()
-    if pid != 0:
-        compose_main.main()
-    else:
-        __run_after_scripts(scenarios)
-
-
-def __run_before_scripts(scenarios):
-    """
-    Runs each scenarios 'before-scripts' scripts.
-    Each script is executed in the foreground.
-    Scripts must be successful for the scenario to begin.
-    :param scenarios: A list of scenarios.
-    :return:
-    """
-
-    for scenario_name in scenarios:
-        scenario_config = get_config('scenarios', scenario_name, AUTOCOMPOSE_SCENARIO_FILE)
-        if 'before-scripts' in scenario_config:
-            before_scripts = scenario_config['before-scripts']
-        else:
-            before_scripts = []
-
-        for script_name in before_scripts:
-            try:
-                script_file = get_first_from_paths(os.path.join('scripts', script_name), 'script.sh')
-            except Exception:
-                script_file = None
-            if script_file is not None:
-                __run_script_in_foreground(script_name, script_file)
-
-
-def __run_after_scripts(scenarios):
-    """
-    Runs each scenarios 'before-scripts' scripts.
-    Each script is executed in parallel in the background.
-    Scripts do not need to be successful; script return codes are ignored.
-    :param scenarios: A list of scenarios.
-    :return:
-    """
-
-    for scenario_name in scenarios:
-        scenario_config = get_config('scenarios', scenario_name, AUTOCOMPOSE_SCENARIO_FILE)
-
-        if 'after-scripts' in scenario_config:
-            after_scripts = scenario_config['after-scripts']
-        else:
-            after_scripts = []
-
-        for script_name in after_scripts:
-            script_file = get_first_from_paths(os.path.join('scripts', script_name), 'script.sh')
-            __run_script_in_background(script_name, script_file)
-
-
-def __run_script_in_foreground(script_name, script_file):
-    """
-    Runs a script. Blocks until the script is complete.
-    :param script_name: A script name.
-    :param script_file: The filename of the script.
-    :return:
-    """
-    try:
-        print('Executing script "' + script_name + '"...')
-        subprocess.check_call(['bash', script_file])
-    except BaseException as e:
-        print(e)
-        raise Exception("Error running before-script " + script_name)
-
-
-def __run_script_in_background(script_name, script_file):
-    """
-    Runs a script as a background process.
-    :param script_name: A script name.
-    :param script_file: The filename of the script.
-    :return:
-    """
-    try:
-        print('Executing script "' + script_name + '"...')
-
-        pid = os.fork()
-        if pid == 0:
-            subprocess.call(['bash', script_file])
-
-    except subprocess.SubprocessError:
-        print("Error running after-script " + script_name)
-    except KeyboardInterrupt:
-        print("Stopped after-script " + script_name)
+    compose_main.main()

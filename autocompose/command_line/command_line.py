@@ -94,7 +94,10 @@ def main():
 
     docker_client = docker.APIClient()
 
-    commands[command].parse_and_execute(args=args.ARGUMENTS, aws_session=aws_session, docker_client=docker_client)
+    try:
+        commands[command].parse_and_execute(args=args.ARGUMENTS, aws_session=aws_session, docker_client=docker_client)
+    except Exception as e:
+        print("Unexpected error:", sys.exc_info()[1])
 
 
 if __name__ == "__main__":

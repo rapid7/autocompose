@@ -1,6 +1,8 @@
 import base64
 import json
 
+from botocore.exceptions import ClientError as BotoClientError
+
 from .util import *
 
 # Config directory for Docker
@@ -19,8 +21,10 @@ def login_to_ecs(aws_session, docker_client, **kwargs):
     """
 
     print('Getting authorization data from AWS...')
-    authorization_data = get_authorization_data(aws_session)
-
+    try:
+        authorization_data = get_authorization_data(aws_session)
+    except Exception as e:
+        raise Exception('Unable to login to ECR. Make sure AWS credentials are set and valid.')
     # Get the authorization token. It contains the username and password for the ECR registry.
     if 'authorizationToken' not in authorization_data:
         raise Exception('Authorization data is missing an "authorizationToken" (docker registry password)')
@@ -64,15 +68,18 @@ def get_authorization_data(aws_session):
     :return: The first element in the authorizationData array.
     """
     aws_client = aws_session.client('ecr')
-    response = aws_client.get_authorization_token()
+    try:
+        response = aws_client.get_authorization_token()
+    except BotoClientError:
+        raise Exception('Unable to get a login via the AWS client. Have you ran \'autocompose login\' ?')
 
     if 'authorizationData' not in response:
-        raise Exception('Unable to get a login via the AWS client.')
+        raise Exception('Unable to get a login via the AWS client. Have you ran \'autocompose login\' ?')
 
     authorization_data = response['authorizationData']
 
     if len(authorization_data) == 0:
-        raise Exception('Authorization data was empty')
+        raise Exception('Authorization data was empty. ')
 
     return authorization_data[0]
 

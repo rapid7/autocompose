@@ -15,7 +15,6 @@ from .command.compose import compose_command
 from .command.login import login_command
 from .command.path import path_command
 from .command.push import push_command
-from .command.up import up_command
 from .command.update_images import update_images_command
 from ..util import set_service_name
 
@@ -28,7 +27,6 @@ commands = {
     'login': login_command,
     'path': path_command,
     'push': push_command,
-    'up': up_command,
     'update-images': update_images_command
 }
 
@@ -36,7 +34,8 @@ parser = argparse.ArgumentParser(description='Dynamically create docker-compose 
 
 parser.add_argument(choices=list(commands.keys()), dest='COMMAND', help='The command to run.')
 parser.add_argument('--service-name',
-                    help='Explicitly specify the service name instead of assuming it is the name of the current directory.')
+                    help='Explicitly specify the service name instead of assuming it is the name of the current '
+                         'directory.')
 parser.add_argument('--aws-access-key-id', help='The AWS access key.')
 parser.add_argument('--aws-secret-access-key', help='The AWS secret key.')
 parser.add_argument('--aws-session-token', help='The AWS session token.')

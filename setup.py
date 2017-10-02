@@ -64,9 +64,9 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'requests == 2.11.1',
-        'boto3 >= 1.4.4',
-        'docker >= 2.3.0',
-        'docker-compose >= 1.13.0'
+        'boto3 == 1.4.4',
+        'docker == 2.3.0',
+        'docker-compose == 1.13.0'
     ],
 
     # List additional groups of dependencies here (e.g. development
